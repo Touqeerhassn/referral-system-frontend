@@ -8,8 +8,32 @@ import { apiClient } from "./axios";
 
 export interface RegisterBusinessPayload {
   name: string;
-  email: string;
   phone: string;
+  email?: string; // Optional
+  role?: string;
+}
+
+// ── WhatsApp Reverse Verification ─────────────────────────────────────────────
+
+export interface InitiateVerifyPayload {
+  name: string;
+  phone: string;
+  email?: string;
+  role?: string;
+}
+
+export interface InitiateVerifyResponse {
+  nonce: string;
+  waLink: string; // e.g. https://wa.me/1234?text=VERIFY_REF-938214
+  expiresAt?: number;
+  message?: string;
+}
+
+export interface VerifyStatusResponse {
+  status: "PENDING" | "VERIFIED" | "EXPIRED";
+  token?: string;
+  business?: BusinessData;
+  message?: string;
 }
 
 export interface BusinessData {
@@ -105,6 +129,45 @@ export function useRegisterBusiness(): UseMutationResult<
   });
 }
 
+// ── WhatsApp Reverse Verification Helpers ─────────────────────────────────────
+
+/**
+ * Step 1: Initiate WhatsApp verification — backend generates a nonce
+ * and returns a pre-filled wa.me deep-link for the user to open.
+ * POST /api/businesses/verify/initiate
+ */
+export async function initiateWhatsAppVerify(
+  payload: InitiateVerifyPayload
+): Promise<InitiateVerifyResponse> {
+  const response = await apiClient.post<InitiateVerifyResponse>(
+    "/api/businesses/verify/initiate",
+    payload
+  );
+  return response.data;
+}
+
+export function useInitiateWhatsAppVerify(): UseMutationResult<
+  InitiateVerifyResponse,
+  Error,
+  InitiateVerifyPayload
+> {
+  return useMutation({ mutationFn: initiateWhatsAppVerify });
+}
+
+/**
+ * Step 2: Poll verification status — frontend calls this every 2s until
+ * backend confirms the WhatsApp message was received.
+ * GET /api/businesses/verify/status?nonce=REF-938214
+ */
+export async function checkVerifyStatus(
+  nonce: string
+): Promise<VerifyStatusResponse> {
+  const response = await apiClient.get<VerifyStatusResponse>(
+    `/api/businesses/verify/status?nonce=${nonce}`
+  );
+  return response.data;
+}
+
 /** Retrieve current business ID from localStorage */
 export function getStoredBusinessId(): string | null {
   if (typeof window === "undefined") return null;
@@ -195,6 +258,34 @@ export function useBusinessParticipants(
     refetchInterval: 15000, // auto-refresh to catch new pending DM / participation requests!
   });
 }
+
+// ── Quick Phone Login ──────────────────────────────────────────────────────────
+
+export interface LoginPayload {
+  phone: string;
+}
+
+export interface LoginResponse {
+  success: boolean;
+  message?: string;
+  token?: string;
+  business?: BusinessData;
+  error?: string;
+}
+
+export async function loginBusiness(payload: LoginPayload): Promise<LoginResponse> {
+  const response = await apiClient.post<LoginResponse>("/api/businesses/login", payload);
+  return response.data;
+}
+
+export function useLoginBusiness(): UseMutationResult<
+  LoginResponse,
+  Error,
+  LoginPayload
+> {
+  return useMutation({ mutationFn: loginBusiness });
+}
+
 
 
 

@@ -1,8 +1,12 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { LogOut } from "lucide-react";
+import toast from "react-hot-toast";
 import { APP_NAME, BUSINESS_NAV_ITEMS } from "@/lib/constants";
+import { getStoredBusiness } from "@/lib/api/business";
 
 const icons: Record<string, React.ReactNode> = {
   grid: (
@@ -26,6 +30,24 @@ const icons: Record<string, React.ReactNode> = {
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [business, setBusiness] = useState<any>(null);
+
+  useEffect(() => {
+    setBusiness(getStoredBusiness());
+  }, []);
+
+  const handleLogout = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("business_id");
+      localStorage.removeItem("business");
+      localStorage.removeItem("current_user");
+      localStorage.removeItem("auth_token");
+    }
+    toast.success("Logged out successfully");
+    router.push("/login");
+  };
+
 
   return (
     <aside
@@ -106,6 +128,9 @@ export default function Sidebar() {
           borderRadius: "var(--radius-md)",
           background: "var(--color-bg-elevated)",
           border: "1px solid var(--color-border-default)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.75rem",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "0.65rem" }}>
@@ -124,15 +149,53 @@ export default function Sidebar() {
               flexShrink: 0,
             }}
           >
-            B
+            {business?.name ? business.name.charAt(0).toUpperCase() : "B"}
           </div>
-          <div style={{ minWidth: 0 }}>
-            <p style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--color-text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-              Business Owner
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <p style={{ fontSize: "0.82rem", fontWeight: 600, color: "var(--color-text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", margin: 0 }}>
+              {business?.name || "Business Owner"}
             </p>
-            <p style={{ fontSize: "0.72rem", color: "var(--color-text-muted)" }}>Guest Plan</p>
+            <p style={{ fontSize: "0.72rem", color: "var(--color-text-muted)", margin: 0 }}>
+              {business?.subsStatus ? `${business.subsStatus} Plan` : "Guest Plan"}
+            </p>
           </div>
         </div>
+
+        <button
+          id="sidebar-logout-btn"
+          type="button"
+          onClick={handleLogout}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.45rem",
+            width: "100%",
+            padding: "0.45rem 0.6rem",
+            borderRadius: "var(--radius-sm)",
+            border: "1px solid var(--color-border-default)",
+            background: "transparent",
+            color: "var(--color-text-muted)",
+            fontSize: "0.78rem",
+            fontWeight: 500,
+            cursor: "pointer",
+            transition: "all var(--transition-fast)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "var(--color-error)";
+            e.currentTarget.style.borderColor = "rgba(220,38,38,0.3)";
+            e.currentTarget.style.background = "var(--color-error-soft)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "var(--color-text-muted)";
+            e.currentTarget.style.borderColor = "var(--color-border-default)";
+            e.currentTarget.style.background = "transparent";
+          }}
+          title="Sign out of RefPulse"
+        >
+          <LogOut size={13} />
+          <span>Log Out</span>
+        </button>
       </div>
     </aside>
   );
