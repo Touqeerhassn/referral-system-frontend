@@ -19,6 +19,7 @@ import {
   Search,
   KeyRound,
   ShieldCheck,
+  Clock,
 } from "lucide-react";
 import { APP_NAME } from "@/lib/constants";
 import { InputField } from "@/components/ui/InputField";
@@ -29,6 +30,15 @@ import {
   ParticipantData,
 } from "@/lib/api/participant";
 import { ParticipantSuccessView } from "./ParticipantSuccessView";
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Helper: basic phone validation (same as in RegisterForm.tsx)
+───────────────────────────────────────────────────────────────────────────── */
+function isValidPhone(raw: string): boolean {
+  // Strip spaces/dashes/parens, must be 7–15 digits optionally starting with +
+  const stripped = raw.replace(/[\s\-().]/g, "");
+  return /^\+?\d{7,15}$/.test(stripped);
+}
 
 interface PublicCampaignClientProps {
   slug: string;
@@ -201,8 +211,8 @@ export function PublicCampaignClient({
 
     if (query.startsWith("part_")) {
       lookupPayload = { participantId: query };
-    } else if (/[0-9]/.test(query) && query.replace(/\D/g, "").length >= 7) {
-      lookupPayload.phone = sanitizePhoneNumber(query);
+    } else if (/[0-9]/.test(query) && query.replace(/[\s\-().]/g, "").length >= 7) {
+      lookupPayload.phone = query.replace(/[\s\-().]/g, "");
     } else {
       lookupPayload.referralCode = query.toUpperCase();
     }
@@ -243,21 +253,33 @@ export function PublicCampaignClient({
     setFieldErrors({});
 
     const trimmedName = name.trim();
-    const sanitizedPhone = sanitizePhoneNumber(phone);
+    const rawPhone = phone.trim();
     const trimmedRef = incomingRefCode.trim().toUpperCase();
 
-    // Validations
+    // Validations (same standard as RegisterForm.tsx)
     const errors: { [key: string]: string } = {};
 
-    if (!trimmedName || trimmedName.length < 2) {
+    if (isNotStarted) {
+      toast.error(`This campaign has not started yet. Registration opens on ${startDate?.toLocaleDateString()}.`);
+      return;
+    }
+
+    if (isEnded) {
+      toast.error("This campaign has already ended.");
+      return;
+    }
+
+    if (!trimmedName) {
+      errors.name = "Full name is required.";
+    } else if (trimmedName.length < 2) {
       errors.name = "Full name must be at least 2 characters.";
     }
 
-    if (!sanitizedPhone) {
+    if (!rawPhone) {
       errors.phone = "Phone number is required.";
-    } else if (!/^\+?[1-9]\d{6,14}$/.test(sanitizedPhone)) {
+    } else if (!isValidPhone(rawPhone)) {
       errors.phone =
-        "Enter a valid international phone number (e.g. +923001234567 or +15551234567).";
+        "Enter a valid phone number with country code (e.g. +923001234567).";
     }
 
     if (!campaignId) {
@@ -271,17 +293,24 @@ export function PublicCampaignClient({
       return;
     }
 
+    // Cleaned phone for API submission (same stripping as RegisterForm.tsx)
+    const cleanPhone = rawPhone.replace(/[\s\-().]/g, "");
+
     // Call API: POST BASE_URL/api/participants/join
     joinMutation.mutate(
       {
         campaignId,
         name: trimmedName,
-        phone: sanitizedPhone,
+        phone: cleanPhone,
         incomingRefCode: trimmedRef || undefined,
       },
       {
         onSuccess: (data) => {
-          toast.success(data?.message || "Participant registered successfully!");
+          if (data?.participant?.orderStatus === "confirmed") {
+            toast.success("Participant registered and confirmed!");
+          } else {
+            toast.success("Registration submitted! Awaiting store owner confirmation.");
+          }
           if (data?.participant) {
             const fallbackLink =
               typeof window !== "undefined"
@@ -320,7 +349,7 @@ export function PublicCampaignClient({
             lookupMutation.mutate(
               existingPartId
                 ? { participantId: existingPartId }
-                : { campaignId, phone: sanitizedPhone },
+                : { campaignId, phone: cleanPhone },
               {
                 onSuccess: (lookupData) => {
                   toast.dismiss("existing-lookup");
@@ -445,6 +474,16 @@ export function PublicCampaignClient({
               tier3Pct={activeCampaign?.tier3Pct}
               maxDiscountCapPct={activeCampaign?.maxDiscountCapPct}
               initialTab={joinedResult.initialTab || "share"}
+              onParticipantUpdated={(updated) => {
+                const link =
+                  typeof window !== "undefined"
+                    ? `${window.location.origin}/c/${slug}?ref=${updated.referralCode}`
+                    : `/c/${slug}?ref=${updated.referralCode}`;
+                persistParticipant(updated, link);
+                setJoinedResult((prev) =>
+                  prev ? { ...prev, participant: updated, shareableLink: link } : null
+                );
+              }}
             />
 
             <div className="text-center mt-3 flex items-center justify-center gap-4">
@@ -482,7 +521,16 @@ export function PublicCampaignClient({
                     Welcome back, {savedParticipant.participant.name}!
                   </span>
                   <span className="text-[0.72rem] text-indigo-700">
-                    Code: <strong>{savedParticipant.participant.referralCode}</strong>
+                    {savedParticipant.participant.orderStatus === "confirmed" ? (
+                      <>
+                        Code: <strong>{savedParticipant.participant.referralCode}</strong>
+                      </>
+                    ) : (
+                      <span className="text-amber-800 font-semibold flex items-center gap-1 mt-0.5">
+                        <Clock size={11} className="text-amber-600 shrink-0" />
+                        <span>Status: Pending Store Confirmation</span>
+                      </span>
+                    )}
                   </span>
                 </div>
                 <button
@@ -490,13 +538,17 @@ export function PublicCampaignClient({
                   onClick={() =>
                     setJoinedResult({
                       ...savedParticipant,
-                      initialTab: "status",
+                      initialTab: savedParticipant.participant.orderStatus === "confirmed" ? "status" : "share",
                     })
                   }
                   className="btn btn-primary px-3 py-1.5 text-xs font-bold shrink-0 shadow-xs flex items-center gap-1 cursor-pointer"
                 >
                   <TrendingUp size={13} />
-                  <span>View My Status</span>
+                  <span>
+                    {savedParticipant.participant.orderStatus === "confirmed"
+                      ? "View My Status"
+                      : "Check Order Status"}
+                  </span>
                 </button>
               </div>
             )}
@@ -660,18 +712,19 @@ export function PublicCampaignClient({
                     name="phone"
                     type="tel"
                     label="Phone Number"
-                    placeholder="+923001234567 or +15551234567"
+                    placeholder="+92 300 1234567"
                     required
                     autoComplete="tel"
                     leftIcon={<Phone size={16} />}
+                    hint="Include country code · Used to confirm your number & track rewards"
                     value={phone}
+                    disabled={joinMutation.isPending}
                     onChange={(e) => {
                       setPhone(e.target.value);
                       if (fieldErrors.phone) {
                         setFieldErrors((prev) => ({ ...prev, phone: "" }));
                       }
                     }}
-                    hint="Use international format with country code (e.g. +92 or +1)"
                     error={fieldErrors.phone}
                   />
 
@@ -699,7 +752,7 @@ export function PublicCampaignClient({
                   <button
                     type="submit"
                     id="btn-join-campaign"
-                    disabled={joinMutation.isPending || isEnded}
+                    disabled={joinMutation.isPending || isEnded || isNotStarted}
                     className="btn btn-primary h-12 w-full text-sm font-bold flex items-center justify-center gap-2 shadow-md mt-2 disabled:opacity-50 cursor-pointer"
                   >
                     {joinMutation.isPending || lookupMutation.isPending ? (
@@ -707,6 +760,13 @@ export function PublicCampaignClient({
                         <Loader2 size={17} className="animate-spin" />
                         <span>Processing...</span>
                       </>
+                    ) : isNotStarted ? (
+                      <>
+                        <Clock size={17} />
+                        <span>Campaign Opens on {startDate?.toLocaleDateString()}</span>
+                      </>
+                    ) : isEnded ? (
+                      <span>Campaign Has Ended</span>
                     ) : (
                       <>
                         <span>Get My Referral Link</span>

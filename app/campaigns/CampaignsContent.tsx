@@ -30,9 +30,13 @@ import {
 export function CampaignsContent() {
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [origin, setOrigin] = useState<string>("");
 
   useEffect(() => {
     setBusinessId(getStoredBusinessId());
+    if (typeof window !== "undefined") {
+      setOrigin(window.location.origin);
+    }
   }, []);
 
   const {
@@ -47,10 +51,19 @@ export function CampaignsContent() {
   const campaigns: ApiCampaignItem[] = campaignsData?.campaigns || [];
   const participants = participantsData?.participants || [];
 
+  const getPublicCampaignUrl = (slugOrId: string) => {
+    const base =
+      origin ||
+      (typeof window !== "undefined"
+        ? window.location.origin
+        : process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000");
+    return `${base}/c/${slugOrId}`;
+  };
+
   const copyLink = (slugOrId: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const url = `${window.location.origin}/c/${slugOrId}`;
+    const url = getPublicCampaignUrl(slugOrId);
     navigator.clipboard.writeText(url);
     setCopiedId(slugOrId);
     toast.success("Public campaign link copied to clipboard!");
@@ -171,9 +184,20 @@ export function CampaignsContent() {
                         <h2 className="font-black text-base text-[var(--color-text-primary)] truncate">
                           {cName}
                         </h2>
-                        <span className="text-[0.7rem] font-mono text-[var(--color-text-muted)] block">
-                          /c/{cSlug}
-                        </span>
+                        <div className="mt-1 flex items-center gap-1.5 flex-wrap text-xs">
+                          <span className="font-bold text-[var(--color-primary)] text-[0.7rem] shrink-0">
+                            Public Link Preview:
+                          </span>
+                          <Link
+                            href={`/c/${cSlug}`}
+                            target="_blank"
+                            className="font-mono text-[0.7rem] text-indigo-600 hover:text-indigo-800 font-semibold bg-indigo-50/70 hover:bg-indigo-100 px-1.5 py-0.5 rounded border border-indigo-100 flex items-center gap-1 transition-colors break-all"
+                            title="Open public page"
+                          >
+                            <span>{origin ? `${origin}/c/${cSlug}` : `http://localhost:3000/c/${cSlug}`}</span>
+                            <ExternalLink size={10} className="shrink-0" />
+                          </Link>
+                        </div>
                       </div>
                       <span className={`badge ${statusClass} text-[0.65rem] font-bold capitalize shrink-0`}>
                         {statusText}

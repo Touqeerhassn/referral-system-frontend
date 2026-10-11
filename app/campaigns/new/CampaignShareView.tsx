@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   Copy,
@@ -58,7 +58,26 @@ export default function CampaignShareView({
   publicLink,
   onReset,
 }: CampaignShareViewProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [copiedLink, setCopiedLink] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }
+    const el = containerRef.current;
+    if (el) {
+      el.scrollTop = 0;
+      el.scrollIntoView({ behavior: "instant", block: "start" });
+      let parent = el.parentElement;
+      while (parent) {
+        if (parent.scrollTop > 0) {
+          parent.scrollTop = 0;
+        }
+        parent = parent.parentElement;
+      }
+    }
+  }, []);
   const [copiedTemplate, setCopiedTemplate] = useState(false);
 
   const discountText = campaign.tier1Pct ? `up to ${campaign.tier1Pct}%` : "great rewards";
@@ -97,7 +116,7 @@ export default function CampaignShareView({
 
 
   return (
-    <div className="flex-1 p-4 sm:p-8 overflow-y-auto max-w-3xl w-full mx-auto animate-scale-in">
+    <div ref={containerRef} className="flex-1 p-4 sm:p-8 overflow-y-auto max-w-3xl w-full mx-auto animate-scale-in">
       {/* Celebration Header */}
       <div className="card-glow p-6 sm:p-8 mb-6 text-center relative overflow-hidden">
         <div className="w-16 h-16 rounded-2xl bg-[var(--color-primary-soft)] text-[var(--color-primary)] flex items-center justify-center mx-auto mb-4 shadow-sm animate-scale-in">

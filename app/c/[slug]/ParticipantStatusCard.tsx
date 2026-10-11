@@ -107,9 +107,16 @@ export function ParticipantStatusCard({
           </h3>
           <p className="text-xs text-[var(--color-text-secondary)]">
             Referral Code:{" "}
-            <span className="font-mono font-bold text-indigo-600">
-              {participant.referralCode}
-            </span>
+            {isConfirmed ? (
+              <span className="font-mono font-bold text-indigo-600">
+                {participant.referralCode}
+              </span>
+            ) : (
+              <span className="font-mono font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded text-[0.72rem] inline-flex items-center gap-1">
+                <Clock size={11} className="text-amber-600" />
+                <span>••••-••••• (Locked until confirmed)</span>
+              </span>
+            )}
           </p>
         </div>
 
@@ -127,6 +134,19 @@ export function ParticipantStatusCard({
           <span className="hidden sm:inline">Refresh</span>
         </button>
       </div>
+
+      {/* Pending Confirmation Notice */}
+      {!isConfirmed && (
+        <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-2.5 shadow-2xs">
+          <Clock size={16} className="text-amber-600 shrink-0 mt-0.5 animate-pulse" />
+          <div>
+            <span className="font-bold block">Awaiting Store Confirmation</span>
+            <span className="text-amber-800/90 leading-relaxed">
+              Your order is currently awaiting verification by the store owner. Once approved, your referral code will unlock and you can start sharing to earn discounts!
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Primary Reward Progress Highlight */}
       <div className="bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 rounded-2xl p-4 sm:p-5 border border-indigo-200/60 relative overflow-hidden">
@@ -283,7 +303,11 @@ export function ParticipantStatusCard({
           onClick={onBackToShare}
           className="btn btn-secondary w-full text-xs font-bold py-2.5 flex items-center justify-center gap-1.5 mt-1"
         >
-          <span>View My Invite Link & Share Options</span>
+          <span>
+            {isConfirmed
+              ? "View My Invite Link & Share Options"
+              : "Back to Code & Verification Status"}
+          </span>
           <ChevronRight size={14} />
         </button>
       )}

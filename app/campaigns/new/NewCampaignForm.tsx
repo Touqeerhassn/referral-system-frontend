@@ -170,7 +170,13 @@ export default function NewCampaignForm() {
     }
 
     // Convert local datetime to ISO format
-    const formattedStart = new Date(startDateTime).toISOString();
+    // If start date is now or within 2 minutes from now, backdate by 1 min to prevent clock-skew
+    const parsedStart = new Date(startDateTime);
+    const isStartingNow = parsedStart.getTime() <= Date.now() + 120000;
+    const formattedStart = isStartingNow
+      ? new Date(Date.now() - 60000).toISOString()
+      : parsedStart.toISOString();
+
     const formattedEnd =
       hasEndDate && endDateTime ? new Date(endDateTime).toISOString() : null;
 
@@ -224,6 +230,10 @@ export default function NewCampaignForm() {
             campaign: finalCampaign,
             publicLink,
           });
+
+          if (typeof window !== "undefined") {
+            window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+          }
         },
         onError: (err) => {
           const errMsg = err?.message || "Failed to create campaign. Please try again.";
@@ -257,6 +267,9 @@ export default function NewCampaignForm() {
             setName("");
             setSlug("");
             setIsSlugCustomized(false);
+            if (typeof window !== "undefined") {
+              window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+            }
           }}
         />
       </>
@@ -416,15 +429,22 @@ export default function NewCampaignForm() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Start Date & Time */}
               <div className="flex flex-col gap-1.5">
-                <label
-                  htmlFor="camp-start-datetime"
-                  className="text-xs font-semibold text-[var(--color-text-secondary)] flex items-center justify-between"
-                >
-                  <span>
+                <div className="flex items-center justify-between">
+                  <label
+                    htmlFor="camp-start-datetime"
+                    className="text-xs font-semibold text-[var(--color-text-secondary)]"
+                  >
                     Start Date & Time <span className="text-[var(--color-primary)] font-bold">*</span>
-                  </span>
-                  <span className="text-[0.7rem] text-[var(--color-text-muted)]">Active immediately</span>
-                </label>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setStartDateTime(toDateTimeLocalString(new Date()))}
+                    className="text-[0.7rem] text-[var(--color-primary)] hover:underline font-semibold cursor-pointer"
+                    title="Set start time to now"
+                  >
+                    ⚡ Start Now (Active Immediately)
+                  </button>
+                </div>
                 <div className="relative flex items-center">
                   <input
                     id="camp-start-datetime"

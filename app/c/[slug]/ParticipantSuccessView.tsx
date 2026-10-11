@@ -1,6 +1,4 @@
-"use client";
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import {
   CheckCircle2,
@@ -14,8 +12,14 @@ import {
   Percent,
   TrendingUp,
   Activity,
+  Clock,
+  RotateCcw,
+  Lock,
+  AlertCircle,
+  ShieldCheck,
+  Loader2,
 } from "lucide-react";
-import type { ParticipantData } from "@/lib/api/participant";
+import { useLookupParticipant, type ParticipantData } from "@/lib/api/participant";
 import { ParticipantStatusCard } from "./ParticipantStatusCard";
 
 interface ParticipantSuccessViewProps {
@@ -27,6 +31,7 @@ interface ParticipantSuccessViewProps {
   tier3Pct?: number;
   maxDiscountCapPct?: number;
   initialTab?: "share" | "status";
+  onParticipantUpdated?: (updated: ParticipantData) => void;
 }
 
 // Custom inline Instagram Icon
@@ -54,17 +59,91 @@ export function ParticipantSuccessView({
   tier3Pct,
   maxDiscountCapPct,
   initialTab = "share",
+  onParticipantUpdated,
 }: ParticipantSuccessViewProps) {
+  const [currentParticipant, setCurrentParticipant] = useState<ParticipantData>(participant);
   const [activeTab, setActiveTab] = useState<"share" | "status">(initialTab);
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [isCheckingStatus, setIsCheckingStatus] = useState(false);
 
-  const referralCode = participant.referralCode;
+  const lookupMutation = useLookupParticipant();
+
+  // Sync state if participant prop changes
+  useEffect(() => {
+    setCurrentParticipant(participant);
+  }, [participant]);
+
+  const isConfirmed = currentParticipant.orderStatus === "confirmed";
+  const referralCode = currentParticipant.referralCode;
+
+  // Background polling every 5s while order is pending
+  useEffect(() => {
+    if (isConfirmed) return;
+
+    const interval = setInterval(() => {
+      lookupMutation.mutate(
+        { participantId: currentParticipant.id },
+        {
+          onSuccess: (data) => {
+            if (data?.participant) {
+              if (data.participant.orderStatus !== currentParticipant.orderStatus) {
+                setCurrentParticipant(data.participant);
+                onParticipantUpdated?.(data.participant);
+                if (data.participant.orderStatus === "confirmed") {
+                  toast.success("🎉 Your order has been confirmed! Referral code is now unlocked!");
+                }
+              }
+            }
+          },
+        }
+      );
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [currentParticipant.id, currentParticipant.orderStatus, isConfirmed, onParticipantUpdated]);
+
+  // Manual status check
+  const handleCheckStatus = (isManual = true) => {
+    if (isCheckingStatus) return;
+    setIsCheckingStatus(true);
+
+    lookupMutation.mutate(
+      { participantId: currentParticipant.id },
+      {
+        onSuccess: (data) => {
+          setIsCheckingStatus(false);
+          if (data?.participant) {
+            setCurrentParticipant(data.participant);
+            onParticipantUpdated?.(data.participant);
+            if (data.participant.orderStatus === "confirmed") {
+              toast.success("🎉 Great news! Your order is confirmed and your referral code is unlocked!");
+            } else if (isManual) {
+              toast("Status: Still pending confirmation by the store owner.", {
+                icon: "⏳",
+              });
+            }
+          }
+        },
+        onError: (err: any) => {
+          setIsCheckingStatus(false);
+          if (isManual) {
+            toast.error(err?.response?.data?.error || "Could not check status right now. Please try again.");
+          }
+        },
+      }
+    );
+  };
 
   // Personalized share message
   const shareMessage = `Hey! I just joined "${campaignName}". Use my invite link or referral code "${referralCode}" to get discounts! Check it out: ${shareableLink}`;
 
   const copyToClipboard = async (text: string, isCode = false) => {
+    if (!isConfirmed) {
+      toast.error("Referral code is locked until the store owner confirms your order.");
+      return;
+    }
+
     try {
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(text);
@@ -106,6 +185,10 @@ export function ParticipantSuccessView({
   const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`;
 
   const handleInstagramShare = async () => {
+    if (!isConfirmed) {
+      toast.error("Sharing is locked until the store owner confirms your order.");
+      return;
+    }
     await copyToClipboard(shareMessage);
     toast.success("Referral link copied! Opening Instagram...");
     setTimeout(() => {
@@ -120,22 +203,24 @@ export function ParticipantSuccessView({
         <button
           type="button"
           onClick={() => setActiveTab("share")}
-          className={`flex-1 py-2 px-3 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${activeTab === "share"
-            ? "bg-white text-[var(--color-primary)] shadow-xs"
-            : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-            }`}
+          className={`flex-1 py-2 px-3 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+            activeTab === "share"
+              ? "bg-white text-[var(--color-primary)] shadow-xs"
+              : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+          }`}
         >
-          <Gift size={14} />
-          <span>Invite & Share</span>
+          {isConfirmed ? <Gift size={14} /> : <Clock size={14} />}
+          <span>{isConfirmed ? "Invite & Share" : "Status & Code"}</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab("status")}
-          className={`flex-1 py-2 px-3 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${activeTab === "status"
-            ? "bg-white text-indigo-700 shadow-xs"
-            : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-            }`}
+          className={`flex-1 py-2 px-3 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+            activeTab === "status"
+              ? "bg-white text-indigo-700 shadow-xs"
+              : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+          }`}
         >
           <Activity size={14} />
           <span>My Discount Status</span>
@@ -144,11 +229,14 @@ export function ParticipantSuccessView({
 
       {activeTab === "status" ? (
         <ParticipantStatusCard
-          participantId={participant.id}
+          participantId={currentParticipant.id}
           campaignName={campaignName}
           onBackToShare={() => setActiveTab("share")}
         />
-      ) : (
+      ) : isConfirmed ? (
+        /* ─────────────────────────────────────────────────────────────
+           STATE A: CONFIRMED & UNLOCKED — Referral Code and Sharing Active
+        ───────────────────────────────────────────────────────────── */
         <div className="card p-6 sm:p-8 animate-scale-in text-center flex flex-col gap-6 shadow-xl border border-[var(--color-border)]">
           {/* Celebration Header */}
           <div>
@@ -157,27 +245,28 @@ export function ParticipantSuccessView({
             </div>
 
             <span className="badge badge-success text-xs font-bold mb-2">
-              Registration Complete
+              Verified & Order Confirmed
             </span>
 
             <h2 className="text-2xl font-black text-[var(--color-text-primary)] tracking-tight">
-              Welcome, {participant.name}!
+              Welcome, {currentParticipant.name}!
             </h2>
 
             <p className="text-sm text-[var(--color-text-secondary)] mt-1.5 max-w-md mx-auto">
-              You are now enrolled in <strong>{campaignName}</strong>. Share your unique link or code to start earning referral discounts!
+              Your order is verified! You are now fully enrolled in <strong>{campaignName}</strong>. Share your unique code or link to start earning discounts!
             </p>
           </div>
 
-          {/* Referral Code Box */}
+          {/* Active Referral Code Box */}
           <div className="bg-gradient-to-br from-indigo-50/80 via-purple-50/50 to-pink-50/80 rounded-2xl p-5 border border-indigo-100 shadow-sm text-left">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-indigo-900">
                 <Ticket size={15} className="text-indigo-600" />
                 <span>Your Personal Referral Code</span>
               </div>
-              <span className="text-[0.7rem] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-semibold">
-                Unique
+              <span className="text-[0.7rem] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-semibold flex items-center gap-1">
+                <ShieldCheck size={11} />
+                <span>Active</span>
               </span>
             </div>
 
@@ -372,7 +461,147 @@ export function ParticipantSuccessView({
             </div>
           )}
         </div>
+      ) : (
+        /* ─────────────────────────────────────────────────────────────
+           STATE B: PENDING OWNER CONFIRMATION — Referral Code Locked
+        ───────────────────────────────────────────────────────────── */
+        <div className="card p-6 sm:p-8 animate-scale-in text-center flex flex-col gap-6 shadow-xl border border-[var(--color-border)]">
+          {/* Pending Status Header */}
+          <div>
+            <div className="w-16 h-16 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center mx-auto mb-3 shadow-sm ring-8 ring-amber-50">
+              <Clock size={36} className="animate-pulse" />
+            </div>
+
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold mb-2">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+              <span>Awaiting Business Confirmation</span>
+            </div>
+
+            <h2 className="text-2xl font-black text-[var(--color-text-primary)] tracking-tight">
+              Registration Received, {currentParticipant.name}!
+            </h2>
+
+            <p className="text-sm text-[var(--color-text-secondary)] mt-1.5 max-w-md mx-auto">
+              Your registration for <strong>{campaignName}</strong> is submitted. Your personal referral code will be released once the business owner confirms your order!
+            </p>
+          </div>
+
+          {/* Locked Referral Code Box */}
+          <div className="bg-gradient-to-br from-slate-50 via-amber-50/40 to-slate-100/70 rounded-2xl p-5 border border-amber-200/80 shadow-sm text-left">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-700">
+                <Lock size={15} className="text-amber-600" />
+                <span>Your Referral Code</span>
+              </div>
+              <span className="text-[0.7rem] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+                <Clock size={11} />
+                <span>Locked (Pending Confirmation)</span>
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between gap-3 bg-white/80 rounded-xl p-3 border border-dashed border-amber-300 shadow-2xs">
+              <div className="flex items-center gap-2">
+                <Lock size={16} className="text-amber-500" />
+                <span className="text-xl sm:text-2xl font-black tracking-widest text-slate-400 font-mono select-none">
+                  ••••-•••••
+                </span>
+              </div>
+              <button
+                type="button"
+                disabled
+                className="btn btn-secondary px-3 py-1.5 text-xs font-semibold flex items-center gap-1.5 shrink-0 opacity-60 cursor-not-allowed"
+                title="Code releases upon store confirmation"
+              >
+                <Lock size={13} />
+                <span>Locked</span>
+              </button>
+            </div>
+
+            <p className="text-[0.72rem] text-slate-500 mt-2 flex items-center gap-1.5">
+              <AlertCircle size={13} className="text-amber-600 shrink-0" />
+              <span>
+                Your unique code and shareable invite link will unlock automatically right after the merchant confirms your purchase.
+              </span>
+            </p>
+          </div>
+
+          {/* Status Check & Auto Refresh Panel */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border border-amber-200 text-left flex flex-col gap-3">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-wider text-amber-950 block">
+                  How does confirmation work?
+                </span>
+                <span className="text-xs text-amber-900/90 mt-0.5 block">
+                  1. Complete your purchase with the merchant (cash, DM, or store payment).<br />
+                  2. The store owner marks your order as <strong>Confirmed</strong> in their dashboard.<br />
+                  3. Your code is instantly unlocked and you can start referring friends!
+                </span>
+              </div>
+            </div>
+
+            {/* Manual Check Status Button */}
+            <div className="pt-1">
+              <button
+                type="button"
+                id="btn-check-status-refresh"
+                onClick={() => handleCheckStatus(true)}
+                disabled={isCheckingStatus || lookupMutation.isPending}
+                className="btn btn-primary w-full py-3 px-4 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+              >
+                {isCheckingStatus || lookupMutation.isPending ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    <span>Checking Store Status...</span>
+                  </>
+                ) : (
+                  <>
+                    <RotateCcw size={16} />
+                    <span>Check Status / Refresh Now</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            <div className="flex items-center justify-center gap-1.5 text-[0.72rem] text-slate-500">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse inline-block" />
+              <span>Auto-refreshing status in background every few seconds</span>
+            </div>
+          </div>
+
+          {/* Referral Rewards Ladder preview */}
+          {(tier1Pct !== undefined || tier2Pct !== undefined || tier3Pct !== undefined) && (
+            <div className="p-4 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border-subtle)] text-left">
+              <div className="flex items-center gap-2 text-xs font-bold text-[var(--color-text-primary)] mb-2.5">
+                <Percent size={14} className="text-[var(--color-primary)]" />
+                <span>Rewards You Will Unlock Once Confirmed</span>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                <div className="p-2.5 rounded-lg bg-white border border-[var(--color-border-subtle)] shadow-2xs">
+                  <span className="block text-[0.68rem] text-[var(--color-text-muted)] font-medium">1st Friend</span>
+                  <span className="text-sm font-extrabold text-[var(--color-primary)]">{tier1Pct ?? 0}% OFF</span>
+                </div>
+                <div className="p-2.5 rounded-lg bg-white border border-[var(--color-border-subtle)] shadow-2xs">
+                  <span className="block text-[0.68rem] text-[var(--color-text-muted)] font-medium">2nd Friend</span>
+                  <span className="text-sm font-extrabold text-indigo-600">{tier2Pct ?? 0}% OFF</span>
+                </div>
+                <div className="p-2.5 rounded-lg bg-white border border-[var(--color-border-subtle)] shadow-2xs">
+                  <span className="block text-[0.68rem] text-[var(--color-text-muted)] font-medium">3rd+ Friends</span>
+                  <span className="text-sm font-extrabold text-emerald-600">{tier3Pct ?? 0}% OFF</span>
+                </div>
+              </div>
+
+              {maxDiscountCapPct && (
+                <p className="text-[0.72rem] text-[var(--color-text-muted)] text-center mt-2">
+                  Maximum accumulative discount cap: <strong>{maxDiscountCapPct}%</strong>
+                </p>
+              )}
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
 }
+
