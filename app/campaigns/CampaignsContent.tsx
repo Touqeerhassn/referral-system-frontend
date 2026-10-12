@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import Topbar from "@/components/Topbar";
-import { ROUTES } from "@/lib/constants";
+import { ROUTES, getPublicCampaignUrl } from "@/lib/constants";
 import {
   useBusinessCampaigns,
   useBusinessParticipants,
@@ -30,13 +30,9 @@ import {
 export function CampaignsContent() {
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [origin, setOrigin] = useState<string>("");
 
   useEffect(() => {
     setBusinessId(getStoredBusinessId());
-    if (typeof window !== "undefined") {
-      setOrigin(window.location.origin);
-    }
   }, []);
 
   const {
@@ -50,15 +46,6 @@ export function CampaignsContent() {
 
   const campaigns: ApiCampaignItem[] = campaignsData?.campaigns || [];
   const participants = participantsData?.participants || [];
-
-  const getPublicCampaignUrl = (slugOrId: string) => {
-    const base =
-      origin ||
-      (typeof window !== "undefined"
-        ? window.location.origin
-        : process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000");
-    return `${base}/c/${slugOrId}`;
-  };
 
   const copyLink = (slugOrId: string, e: React.MouseEvent) => {
     e.preventDefault();
@@ -194,7 +181,7 @@ export function CampaignsContent() {
                             className="font-mono text-[0.7rem] text-indigo-600 hover:text-indigo-800 font-semibold bg-indigo-50/70 hover:bg-indigo-100 px-1.5 py-0.5 rounded border border-indigo-100 flex items-center gap-1 transition-colors break-all"
                             title="Open public page"
                           >
-                            <span>{origin ? `${origin}/c/${cSlug}` : `http://localhost:3000/c/${cSlug}`}</span>
+                            <span>{getPublicCampaignUrl(cSlug)}</span>
                             <ExternalLink size={10} className="shrink-0" />
                           </Link>
                         </div>

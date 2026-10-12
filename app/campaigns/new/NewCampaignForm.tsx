@@ -22,7 +22,7 @@ import {
 import toast from "react-hot-toast";
 import Topbar from "@/components/Topbar";
 import { InputField } from "@/components/ui/InputField";
-import { ROUTES } from "@/lib/constants";
+import { ROUTES, APP_URL, LIVE_APP_URL, getPublicCampaignUrl } from "@/lib/constants";
 import { slugify } from "@/lib/utils";
 import { getStoredBusinessId } from "@/lib/api/business";
 import { useCreateCampaign } from "@/lib/api/campaign";
@@ -79,14 +79,8 @@ export default function NewCampaignForm() {
   // React Query Mutation
   const { mutate: create, isPending, isError, error } = useCreateCampaign();
 
-  // Window origin for public link preview
-  const [origin, setOrigin] = useState<string>("http://localhost:3000");
-
-  // Load businessId from localStorage & origin
+  // Load businessId from localStorage
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      setOrigin(window.location.origin);
-    }
     const storedId = getStoredBusinessId();
     if (storedId) {
       setBusinessId(storedId);
@@ -180,35 +174,38 @@ export default function NewCampaignForm() {
     const formattedEnd =
       hasEndDate && endDateTime ? new Date(endDateTime).toISOString() : null;
 
+    const targetSlug = slug.trim();
+    const livePublicLink = getPublicCampaignUrl(targetSlug);
+
     // Call API: POST BASE_URL/api/campaigns
     create(
       {
         businessId: businessId.trim(),
         name: name.trim(),
-        slug: slug.trim(),
+        slug: targetSlug,
         startDateTime: formattedStart,
         endDateTime: formattedEnd,
         tier1Pct: t1,
         tier2Pct: t2,
         tier3Pct: t3,
         maxDiscountCapPct: maxCap,
+        publicLink: livePublicLink,
+        appUrl: APP_URL || LIVE_APP_URL,
+        baseUrl: APP_URL || LIVE_APP_URL,
       },
       {
         onSuccess: (data) => {
           const successMsg = data?.message || "Campaign created successfully!";
           toast.success(successMsg);
 
-          const fallbackLink =
-            typeof window !== "undefined"
-              ? `${window.location.origin}/c/${data?.campaign?.slug || slug}`
-              : `/c/${data?.campaign?.slug || slug}`;
-          const publicLink = data?.publicLink || fallbackLink;
+          const finalSlug = data?.campaign?.slug || targetSlug;
+          const publicLink = getPublicCampaignUrl(finalSlug, data?.publicLink);
 
           const finalCampaign = data?.campaign || {
             id: `cmp_${Date.now()}`,
             businessId,
             name,
-            slug,
+            slug: finalSlug,
             tier1Pct: t1,
             tier2Pct: t2,
             tier3Pct: t3,
@@ -220,7 +217,7 @@ export default function NewCampaignForm() {
           if (typeof window !== "undefined") {
             try {
               localStorage.setItem(
-                `campaign_slug_${data?.campaign?.slug || slug}`,
+                `campaign_slug_${finalSlug}`,
                 JSON.stringify(finalCampaign)
               );
             } catch { }
@@ -377,7 +374,7 @@ export default function NewCampaignForm() {
                       Public Link Preview:
                     </span>
                     <code className="font-mono text-xs text-[var(--color-text-primary)] break-all font-semibold">
-                      {`${origin}/c/${slug}`}
+                      {getPublicCampaignUrl(slug)}
                     </code>
                   </div>
                   <span className="badge badge-primary text-[0.68rem] shrink-0 hidden sm:inline-block">

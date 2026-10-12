@@ -21,7 +21,7 @@ import {
   ShieldCheck,
   Clock,
 } from "lucide-react";
-import { APP_NAME } from "@/lib/constants";
+import { APP_NAME, getPublicReferralUrl } from "@/lib/constants";
 import { InputField } from "@/components/ui/InputField";
 import { useCampaignBySlug, CampaignDetails } from "@/lib/api/campaign";
 import {
@@ -136,14 +136,15 @@ export function PublicCampaignClient({
         {
           onSuccess: (data) => {
             if (data?.participant) {
-              const fallbackLink =
-                typeof window !== "undefined"
-                  ? `${window.location.origin}/c/${slug}?ref=${data.participant.referralCode}`
-                  : `/c/${slug}?ref=${data.participant.referralCode}`;
+              const link = getPublicReferralUrl(
+                slug,
+                data.participant.referralCode,
+                data.shareableLink
+              );
 
               const resObj = {
                 participant: data.participant,
-                shareableLink: data.shareableLink || fallbackLink,
+                shareableLink: link,
                 initialTab: "status" as const,
               };
               setJoinedResult(resObj);
@@ -221,12 +222,11 @@ export function PublicCampaignClient({
       onSuccess: (data) => {
         if (data?.participant) {
           toast.success(`Welcome back, ${data.participant.name}!`);
-          const fallbackLink =
-            typeof window !== "undefined"
-              ? `${window.location.origin}/c/${slug}?ref=${data.participant.referralCode}`
-              : `/c/${slug}?ref=${data.participant.referralCode}`;
-
-          const link = data.shareableLink || fallbackLink;
+          const link = getPublicReferralUrl(
+            slug,
+            data.participant.referralCode,
+            data.shareableLink
+          );
           persistParticipant(data.participant, link);
 
           setJoinedResult({
@@ -312,12 +312,11 @@ export function PublicCampaignClient({
             toast.success("Registration submitted! Awaiting store owner confirmation.");
           }
           if (data?.participant) {
-            const fallbackLink =
-              typeof window !== "undefined"
-                ? `${window.location.origin}/c/${slug}?ref=${data.participant.referralCode}`
-                : `/c/${slug}?ref=${data.participant.referralCode}`;
-
-            const fullLink = data.shareableLink || fallbackLink;
+            const fullLink = getPublicReferralUrl(
+              slug,
+              data.participant.referralCode,
+              data.shareableLink
+            );
             persistParticipant(data.participant, fullLink);
 
             setJoinedResult({
@@ -355,12 +354,11 @@ export function PublicCampaignClient({
                   toast.dismiss("existing-lookup");
                   if (lookupData?.participant) {
                     toast.success(`Welcome back, ${lookupData.participant.name}!`);
-                    const fallbackLink =
-                      typeof window !== "undefined"
-                        ? `${window.location.origin}/c/${slug}?ref=${lookupData.participant.referralCode}`
-                        : `/c/${slug}?ref=${lookupData.participant.referralCode}`;
-
-                    const link = lookupData.shareableLink || fallbackLink;
+                    const link = getPublicReferralUrl(
+                      slug,
+                      lookupData.participant.referralCode,
+                      lookupData.shareableLink
+                    );
                     persistParticipant(lookupData.participant, link);
 
                     setJoinedResult({
@@ -475,10 +473,7 @@ export function PublicCampaignClient({
               maxDiscountCapPct={activeCampaign?.maxDiscountCapPct}
               initialTab={joinedResult.initialTab || "share"}
               onParticipantUpdated={(updated) => {
-                const link =
-                  typeof window !== "undefined"
-                    ? `${window.location.origin}/c/${slug}?ref=${updated.referralCode}`
-                    : `/c/${slug}?ref=${updated.referralCode}`;
+                const link = getPublicReferralUrl(slug, updated.referralCode);
                 persistParticipant(updated, link);
                 setJoinedResult((prev) =>
                   prev ? { ...prev, participant: updated, shareableLink: link } : null

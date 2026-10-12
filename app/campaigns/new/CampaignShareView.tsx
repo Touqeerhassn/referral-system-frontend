@@ -15,7 +15,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import { ROUTES } from "@/lib/constants";
+import { ROUTES, getPublicCampaignUrl } from "@/lib/constants";
 
 function InstagramIcon({ size = 18, className = "" }: { size?: number; className?: string }) {
   return (
@@ -58,6 +58,9 @@ export default function CampaignShareView({
   publicLink,
   onReset,
 }: CampaignShareViewProps) {
+  // Normalize link to ensure live production domain is used without leaking localhost
+  const resolvedPublicLink = getPublicCampaignUrl(campaign.slug, publicLink);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const [copiedLink, setCopiedLink] = useState(false);
 
@@ -83,10 +86,10 @@ export default function CampaignShareView({
   const discountText = campaign.tier1Pct ? `up to ${campaign.tier1Pct}%` : "great rewards";
 
   // Pre-made sharing message
-  const shareMessage = `Hey! Check out our new referral program "${campaign.name}" and earn ${discountText} off: ${publicLink}`;
+  const shareMessage = `Hey! Check out our new referral program "${campaign.name}" and earn ${discountText} off: ${resolvedPublicLink}`;
 
   // Pre-made customer DM template
-  const customerTemplate = `Hi there! 👋 We just launched our new referral rewards program. Refer your friends and you'll get ${discountText} discount when they shop with us!\n\nJoin here: ${publicLink}`;
+  const customerTemplate = `Hi there! 👋 We just launched our new referral rewards program. Refer your friends and you'll get ${discountText} discount when they shop with us!\n\nJoin here: ${resolvedPublicLink}`;
 
   const copyToClipboard = (text: string, isTemplate = false) => {
     navigator.clipboard.writeText(text);
@@ -103,9 +106,9 @@ export default function CampaignShareView({
 
   // Social URLs
   const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareMessage)}`;
-  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`Check out our new referral program and get ${discountText} off!`)}&url=${encodeURIComponent(publicLink)}`;
-  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(publicLink)}`;
-  const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(publicLink)}`;
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(`Check out our new referral program and get ${discountText} off!`)}&url=${encodeURIComponent(resolvedPublicLink)}`;
+  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(resolvedPublicLink)}`;
+  const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(resolvedPublicLink)}`;
 
   // Handle Instagram Share
   const handleInstagramShare = () => {
@@ -153,15 +156,15 @@ export default function CampaignShareView({
             <input
               type="text"
               readOnly
-              value={publicLink}
+              value={resolvedPublicLink}
               className="w-full h-12 pl-3.5 pr-10 rounded-xl border border-[var(--color-border-default)] bg-[var(--color-bg-base)] text-sm font-semibold text-[var(--color-text-primary)] focus:border-[var(--color-primary)] outline-none"
-              onClick={() => copyToClipboard(publicLink)}
+              onClick={() => copyToClipboard(resolvedPublicLink)}
             />
           </div>
 
           <button
             type="button"
-            onClick={() => copyToClipboard(publicLink)}
+            onClick={() => copyToClipboard(resolvedPublicLink)}
             className="btn btn-primary h-12 px-5 text-sm font-semibold shrink-0 flex items-center gap-2 shadow-sm"
           >
             {copiedLink ? (

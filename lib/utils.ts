@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { Campaign, LeaderboardEntry, Participant } from "@/types";
+import { APP_URL, LIVE_APP_URL } from "@/lib/constants";
 
 /** Merges class names safely with tailwind-merge and clsx */
 export function cn(...inputs: ClassValue[]): string {
@@ -16,10 +17,15 @@ export function generateReferralCode(prefix = "ref"): string {
 
 /** Build a full referral link given campaign id and participant code */
 export function buildReferralLink(campaignId: string, code: string): string {
-  const base =
-    typeof window !== "undefined"
-      ? window.location.origin
-      : process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  let base = APP_URL || LIVE_APP_URL;
+  if (typeof window !== "undefined") {
+    const isLocal =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
+    if (!isLocal) {
+      base = window.location.origin.replace(/\/+$/, "");
+    }
+  }
   return `${base}/r/${campaignId}?ref=${code}`;
 }
 
@@ -142,7 +148,7 @@ export function getMockParticipant(campaignId: string): Participant {
     name: "Your Name",
     email: "you@example.com",
     referralCode: "REF-AB12CD",
-    referralLink: `http://localhost:3000/r/${campaignId}?ref=REF-AB12CD`,
+    referralLink: buildReferralLink(campaignId, "REF-AB12CD"),
     referralCount: 3,
     totalRewards: "$30",
     joinedAt: new Date().toISOString(),

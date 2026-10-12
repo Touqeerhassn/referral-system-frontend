@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import Topbar from "@/components/Topbar";
-import { ROUTES } from "@/lib/constants";
+import { ROUTES, getPublicCampaignUrl } from "@/lib/constants";
 import { useCampaignById, useCampaignLeaderboard } from "@/lib/api/campaign";
 import { useBusinessParticipants, getStoredBusinessId } from "@/lib/api/business";
 import { formatDate } from "@/lib/utils";
@@ -43,9 +43,7 @@ export function CampaignDetailContent({ campaignId }: { campaignId: string }) {
   const confirmedCount = participants.filter((p) => p.orderStatus === "confirmed").length;
   const pendingCount = participants.filter((p) => p.orderStatus === "pending").length;
 
-  const publicUrl = typeof window !== "undefined" && campaign?.slug
-    ? `${window.location.origin}/c/${campaign.slug}`
-    : "";
+  const publicUrl = campaign?.slug ? getPublicCampaignUrl(campaign.slug) : "";
 
   const copyPublicLink = () => {
     if (!publicUrl) return;

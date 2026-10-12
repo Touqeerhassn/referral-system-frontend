@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import Topbar from "@/components/Topbar";
-import { ROUTES } from "@/lib/constants";
+import { ROUTES, getPublicCampaignUrl } from "@/lib/constants";
 import {
   useBusinessCampaigns,
   useBusinessParticipants,
@@ -87,7 +87,7 @@ export default function DashboardContent() {
   const copyLink = (slugOrId: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const url = `${window.location.origin}/c/${slugOrId}`;
+    const url = getPublicCampaignUrl(slugOrId);
     navigator.clipboard.writeText(url);
     setCopiedId(slugOrId);
     toast.success("Public campaign link copied to clipboard!");

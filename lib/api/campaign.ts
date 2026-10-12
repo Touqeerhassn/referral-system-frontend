@@ -16,7 +16,11 @@ export interface CreateCampaignPayload {
   tier2Pct: number;
   tier3Pct: number;
   maxDiscountCapPct: number;
+  publicLink?: string;
+  appUrl?: string;
+  baseUrl?: string;
 }
+
 
 export interface CampaignDetails {
   id: string;
