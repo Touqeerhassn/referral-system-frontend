@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { APP_NAME } from "@/lib/constants";
-import { getMockCampaigns, formatDate, daysRemaining } from "@/lib/utils";
+import { getMockCampaigns, daysRemaining } from "@/lib/utils";
+import { InputField } from "@/components/ui/InputField";
+import { User, Mail, Phone, Gift, Sparkles, CheckCircle2 } from "lucide-react";
 
 export async function generateMetadata({
   params,
@@ -16,9 +19,6 @@ export async function generateMetadata({
   };
 }
 
-import { InputField } from "@/components/ui/InputField";
-import { User, Mail, Phone } from "lucide-react";
-
 export default async function ReferralJoinPage({
   params,
   searchParams,
@@ -33,99 +33,57 @@ export default async function ReferralJoinPage({
   const days = campaign.endDate ? daysRemaining(campaign.endDate) : null;
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "var(--gradient-hero)",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "2rem 1.5rem",
-      }}
-    >
+    <div className="min-h-screen bg-[var(--gradient-hero)] flex flex-col items-center justify-center p-3.5 sm:p-6 md:p-8">
       {/* Brand header */}
-      <div style={{ marginBottom: "2rem", textAlign: "center" }}>
-        <span
-          className="text-gradient-brand"
-          style={{ fontSize: "1.6rem", fontWeight: 900, letterSpacing: "-0.02em" }}
-        >
-          {APP_NAME}
-        </span>
+      <div className="mb-6 text-center">
+        <Link href="/" className="inline-block">
+          <span className="text-gradient-brand text-2xl sm:text-3xl font-black tracking-tight">
+            {APP_NAME}
+          </span>
+        </Link>
       </div>
 
-      <div style={{ width: "100%", maxWidth: "480px", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+      <div className="w-full max-w-lg flex flex-col gap-5">
         {/* Campaign banner */}
-        <div
-          className="card-glow animate-scale-in"
-          style={{ padding: "2rem", textAlign: "center" }}
-        >
-          <span style={{ fontSize: "3rem" }}>🎉</span>
-          <h1
-            style={{
-              fontSize: "1.5rem",
-              fontWeight: 800,
-              color: "var(--color-text-primary)",
-              marginTop: "0.75rem",
-              lineHeight: 1.3,
-            }}
-          >
+        <div className="card-glow p-5 sm:p-8 text-center animate-scale-in">
+          <span className="text-4xl sm:text-5xl block mb-2">🎉</span>
+          <h1 className="text-xl sm:text-2xl font-black text-[var(--color-text-primary)] tracking-tight">
             {campaign.title}
           </h1>
-          <p style={{ color: "var(--color-text-secondary)", fontSize: "0.9rem", marginTop: "0.5rem", lineHeight: 1.6 }}>
+          <p className="text-xs sm:text-sm text-[var(--color-text-secondary)] mt-2 leading-relaxed">
             {campaign.description}
           </p>
 
           {/* Reward highlight */}
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              padding: "0.5rem 1.25rem",
-              borderRadius: "var(--radius-pill)",
-              background: "var(--color-primary-muted)",
-              border: "1px solid var(--color-border-strong)",
-              marginTop: "1rem",
-            }}
-          >
-            <span style={{ fontSize: "1.25rem" }}>🎁</span>
-            <span style={{ color: "var(--color-primary)", fontWeight: 700, fontSize: "1rem" }}>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-primary-muted)] border border-[var(--color-border-strong)] mt-4">
+            <span className="text-base sm:text-lg">🎁</span>
+            <span className="text-[var(--color-primary)] font-bold text-xs sm:text-sm">
               {campaign.reward}
             </span>
           </div>
 
           {/* Deadline */}
           {days !== null && (
-            <p style={{ color: "var(--color-text-muted)", fontSize: "0.8rem", marginTop: "0.75rem" }}>
+            <p className="text-[var(--color-text-muted)] text-xs mt-3">
               ⏰ {days > 0 ? `${days} days remaining` : "Campaign ended"}
             </p>
           )}
         </div>
 
         {/* Join form */}
-        <div className="card animate-fade-in-up" style={{ padding: "2rem" }}>
-          <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--color-text-primary)", marginBottom: "1.25rem" }}>
+        <div className="card p-5 sm:p-7 animate-fade-in-up">
+          <h2 className="text-base font-bold text-[var(--color-text-primary)] mb-4">
             Join & Start Referring
           </h2>
 
           {ref && (
-            <div
-              style={{
-                padding: "0.6rem 0.85rem",
-                background: "var(--color-success-muted)",
-                border: "1px solid rgba(46,204,138,0.3)",
-                borderRadius: "var(--radius-md)",
-                marginBottom: "1rem",
-                fontSize: "0.8rem",
-                color: "var(--color-success)",
-              }}
-            >
-              ✅ You were referred by a friend! Your referral is tracked.
+            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl mb-4 text-xs text-emerald-800 flex items-center gap-2">
+              <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+              <span>You were invited by a friend! Your referral will be tracked.</span>
             </div>
           )}
 
-          <form style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          <form className="flex flex-col gap-4">
             <InputField
               id="part-name"
               label="Full Name"
@@ -154,7 +112,6 @@ export default async function ReferralJoinPage({
               leftIcon={<Phone size={16} />}
             />
 
-
             {/* Hidden referrer code */}
             {ref && <input type="hidden" name="ref" value={ref} />}
             <input type="hidden" name="campaignId" value={campaignId} />
@@ -162,21 +119,20 @@ export default async function ReferralJoinPage({
             <button
               id="participant-join-submit"
               type="submit"
-              className="btn btn-primary animate-pulse-glow"
-              style={{ padding: "0.8rem", fontSize: "0.95rem", marginTop: "0.25rem" }}
+              className="btn btn-primary py-3 text-xs sm:text-sm font-bold shadow-md mt-1 flex items-center justify-center gap-2"
             >
               🚀 Join & Get My Referral Link
             </button>
           </form>
 
-          <p style={{ textAlign: "center", color: "var(--color-text-muted)", fontSize: "0.78rem", marginTop: "1rem" }}>
+          <p className="text-center text-[var(--color-text-muted)] text-[0.72rem] mt-3">
             By joining, you agree to the campaign terms. No spam, ever.
           </p>
         </div>
 
         {/* How it works */}
-        <div className="card" style={{ padding: "1.5rem" }}>
-          <h3 style={{ fontSize: "0.875rem", fontWeight: 700, color: "var(--color-text-primary)", marginBottom: "1rem" }}>
+        <div className="card p-5 sm:p-6">
+          <h3 className="text-xs sm:text-sm font-bold text-[var(--color-text-primary)] mb-3">
             How it works
           </h3>
           {[
@@ -185,18 +141,11 @@ export default async function ReferralJoinPage({
             { step: "3", text: "Share with friends & family" },
             { step: "4", text: "Earn rewards for every successful referral!" },
           ].map((item) => (
-            <div key={item.step} style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start", marginBottom: "0.65rem" }}>
-              <span
-                style={{
-                  width: "22px", height: "22px", borderRadius: "50%",
-                  background: "var(--gradient-brand)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: "0.7rem", fontWeight: 700, color: "#fff", flexShrink: 0,
-                }}
-              >
+            <div key={item.step} className="flex gap-3 items-start mb-2.5 last:mb-0">
+              <span className="w-5 h-5 rounded-full bg-gradient-to-tr from-[var(--color-primary)] to-[var(--color-brand-crimson)] flex items-center justify-center text-[0.68rem] font-bold text-white shrink-0">
                 {item.step}
               </span>
-              <span style={{ color: "var(--color-text-secondary)", fontSize: "0.85rem", paddingTop: "2px" }}>
+              <span className="text-[var(--color-text-secondary)] text-xs pt-0.5">
                 {item.text}
               </span>
             </div>

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { APP_NAME } from "@/lib/constants";
 import { getMockCampaigns, getMockParticipant, getMockLeaderboard } from "@/lib/utils";
+import { Trophy, Link as LinkIcon, Gift, Share2, Copy } from "lucide-react";
 
 export async function generateMetadata({
   params,
@@ -23,178 +25,201 @@ export default async function ParticipantDashboardPage({
   const myRank = leaderboard.findIndex((e) => e.referralCount <= participant.referralCount) + 1;
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "var(--gradient-hero)",
-        padding: "2rem 1.5rem",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
-    >
-      {/* Header */}
-      <div style={{ width: "100%", maxWidth: "700px" }}>
-        <div style={{ marginBottom: "1.75rem", textAlign: "center" }}>
-          <span
-            className="text-gradient-brand"
-            style={{ fontSize: "1.5rem", fontWeight: 900, letterSpacing: "-0.02em", display: "block" }}
-          >
-            {APP_NAME}
-          </span>
-          <p style={{ color: "var(--color-text-muted)", fontSize: "0.8rem", marginTop: "0.2rem" }}>
-            Participant Dashboard
+    <div className="min-h-screen bg-[var(--gradient-hero)] p-3.5 sm:p-6 md:p-8 flex flex-col items-center">
+      <div className="w-full max-w-2xl flex flex-col gap-5">
+        {/* Header */}
+        <div className="text-center mb-1">
+          <Link href="/" className="inline-block">
+            <span className="text-gradient-brand text-2xl font-black tracking-tight">
+              {APP_NAME}
+            </span>
+          </Link>
+          <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
+            Participant Referral Portal
           </p>
         </div>
 
         {/* Welcome card */}
-        <div className="card-glow animate-scale-in" style={{ padding: "1.75rem", marginBottom: "1.25rem" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "1rem" }}>
+        <div className="card-glow p-5 sm:p-7 animate-scale-in">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h1 style={{ fontSize: "1.3rem", fontWeight: 800, color: "var(--color-text-primary)" }}>
+              <h1 className="text-xl sm:text-2xl font-black text-[var(--color-text-primary)] tracking-tight">
                 Hi, {participant.name}! 👋
               </h1>
-              <p style={{ color: "var(--color-text-secondary)", fontSize: "0.875rem", marginTop: "0.25rem" }}>
-                You&apos;re participating in{" "}
-                <strong style={{ color: "var(--color-primary)" }}>{campaign.title}</strong>
+              <p className="text-xs sm:text-sm text-[var(--color-text-secondary)] mt-1">
+                You are participating in{" "}
+                <strong className="text-[var(--color-primary)]">{campaign.title}</strong>
               </p>
             </div>
-            <span className="badge badge-success" style={{ fontSize: "0.82rem" }}>🟢 Active</span>
+            <span className="badge badge-success text-xs font-bold self-start sm:self-auto">
+              🟢 Active
+            </span>
           </div>
 
           {/* Stats row */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gap: "1rem",
-              marginTop: "1.25rem",
-            }}
-          >
+          <div className="grid grid-cols-3 gap-2.5 sm:gap-4 mt-5">
             {[
-              { label: "My Referrals",  value: participant.referralCount, icon: "🔗", color: "var(--color-primary)" },
-              { label: "Total Earned",  value: participant.totalRewards,  icon: "💰", color: "var(--color-warning)" },
-              { label: "My Rank",       value: `#${myRank}`,             icon: "🏆", color: "var(--color-success)" },
+              { label: "My Referrals", value: participant.referralCount, icon: "🔗", color: "text-[var(--color-primary)]" },
+              { label: "Total Earned", value: participant.totalRewards, icon: "💰", color: "text-[var(--color-warning)]" },
+              { label: "My Rank", value: `#${myRank}`, icon: "🏆", color: "text-[var(--color-success)]" },
             ].map((s) => (
               <div
                 key={s.label}
-                style={{
-                  textAlign: "center",
-                  padding: "0.85rem",
-                  background: "var(--color-bg-card)",
-                  borderRadius: "var(--radius-md)",
-                  border: "1px solid var(--color-border-default)",
-                }}
+                className="text-center p-3 rounded-2xl bg-[var(--color-bg-card)] border border-[var(--color-border-default)] shadow-2xs"
               >
-                <span style={{ fontSize: "1.4rem" }}>{s.icon}</span>
-                <p style={{ color: s.color, fontSize: "1.5rem", fontWeight: 800, marginTop: "0.25rem", lineHeight: 1 }}>
+                <span className="text-xl sm:text-2xl block">{s.icon}</span>
+                <p className={`${s.color} text-lg sm:text-2xl font-black mt-1 leading-tight`}>
                   {s.value}
                 </p>
-                <p style={{ color: "var(--color-text-muted)", fontSize: "0.72rem", marginTop: "0.2rem" }}>{s.label}</p>
+                <p className="text-[var(--color-text-muted)] text-[0.68rem] sm:text-xs mt-0.5 font-medium truncate">
+                  {s.label}
+                </p>
               </div>
             ))}
           </div>
         </div>
 
         {/* My referral link */}
-        <div className="card animate-fade-in-up" style={{ padding: "1.5rem", marginBottom: "1.25rem" }}>
-          <h2 style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--color-text-primary)", marginBottom: "0.5rem" }}>
+        <div className="card p-5 sm:p-6 animate-fade-in-up">
+          <h2 className="text-sm sm:text-base font-bold text-[var(--color-text-primary)] mb-1">
             📣 My Referral Link
           </h2>
-          <p style={{ color: "var(--color-text-muted)", fontSize: "0.82rem", marginBottom: "0.85rem" }}>
-            Share this link with friends. You earn <strong style={{ color: "var(--color-primary)" }}>{campaign.reward}</strong> for every successful referral.
+          <p className="text-xs text-[var(--color-text-muted)] mb-3">
+            Share this link with friends. You earn{" "}
+            <strong className="text-[var(--color-primary)]">{campaign.reward}</strong> for every successful referral.
           </p>
-          <div style={{ display: "flex", gap: "0.5rem" }}>
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
             <input
               readOnly
               value={participant.referralLink}
-              className="input"
               id="my-referral-link"
-              style={{ fontSize: "0.8rem", color: "var(--color-text-secondary)" }}
+              className="input-base text-xs font-mono py-2 px-3 flex-1 bg-[var(--color-bg-subtle)] truncate"
             />
-            <button id="copy-my-link" className="btn btn-primary" style={{ padding: "0 1.25rem", flexShrink: 0 }}>
-              Copy
+            <button
+              id="copy-my-link"
+              type="button"
+              className="btn btn-primary px-4 py-2 text-xs font-bold flex items-center justify-center gap-1.5 shrink-0 shadow-xs"
+            >
+              <Copy size={13} />
+              <span>Copy</span>
             </button>
           </div>
-          <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.75rem" }}>
-            <button id="share-whatsapp" className="btn btn-ghost" style={{ flex: 1, fontSize: "0.82rem", padding: "0.5rem" }}>
+
+          <div className="grid grid-cols-3 gap-2 mt-3">
+            <button
+              id="share-whatsapp"
+              type="button"
+              className="btn btn-ghost py-2 text-xs font-semibold rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200"
+            >
               💬 WhatsApp
             </button>
-            <button id="share-facebook" className="btn btn-ghost" style={{ flex: 1, fontSize: "0.82rem", padding: "0.5rem" }}>
+            <button
+              id="share-facebook"
+              type="button"
+              className="btn btn-ghost py-2 text-xs font-semibold rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200"
+            >
               📘 Facebook
             </button>
-            <button id="share-twitter" className="btn btn-ghost" style={{ flex: 1, fontSize: "0.82rem", padding: "0.5rem" }}>
+            <button
+              id="share-twitter"
+              type="button"
+              className="btn btn-ghost py-2 text-xs font-semibold rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-800 border border-slate-200"
+            >
               🐦 Twitter
             </button>
           </div>
         </div>
 
         {/* Leaderboard */}
-        <div className="card" style={{ overflow: "hidden" }}>
-          <div style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid var(--color-border-subtle)" }}>
-            <h2 style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--color-text-primary)" }}>
-              🏆 Campaign Leaderboard
+        <div className="card overflow-hidden shadow-xs">
+          <div className="p-4 border-b border-[var(--color-border-subtle)]">
+            <h2 className="text-xs sm:text-sm font-bold text-[var(--color-text-primary)] flex items-center gap-1.5">
+              <Trophy size={15} className="text-amber-500" />
+              <span>Campaign Leaderboard</span>
             </h2>
           </div>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr style={{ background: "var(--color-bg-elevated)" }}>
-                {["Rank", "Participant", "Referrals", "Rewards"].map((h) => (
-                  <th
-                    key={h}
-                    style={{
-                      padding: "0.75rem 1.25rem",
-                      textAlign: h === "Rank" || h === "Referrals" || h === "Rewards" ? "center" : "left",
-                      color: "var(--color-text-muted)",
-                      fontSize: "0.72rem",
-                      fontWeight: 600,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.06em",
-                      borderBottom: "1px solid var(--color-border-subtle)",
-                    }}
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {leaderboard.map((entry) => {
-                const isMe = entry.referralCount === participant.referralCount && entry.rank === myRank;
-                return (
-                  <tr
-                    key={entry.participantId}
-                    style={{
-                      borderBottom: "1px solid var(--color-border-subtle)",
-                      background: isMe ? "var(--color-primary-muted)" : "transparent",
-                    }}
-                  >
-                    <td style={{ padding: "0.8rem 1.25rem", textAlign: "center" }}>
-                      <span style={{ fontWeight: 700, fontSize: "0.85rem", color: entry.rank <= 3 ? "var(--color-warning)" : "var(--color-text-muted)" }}>
+
+          {/* Mobile Card View (screens < sm) */}
+          <div className="block sm:hidden divide-y divide-[var(--color-border-subtle)]">
+            {leaderboard.map((entry) => {
+              const isMe = entry.referralCount === participant.referralCount && entry.rank === myRank;
+              return (
+                <div
+                  key={entry.participantId}
+                  className={`p-3 flex items-center justify-between gap-2.5 ${
+                    isMe ? "bg-[var(--color-primary-soft)]/50" : ""
+                  }`}
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="font-bold text-xs text-[var(--color-text-muted)] w-5 text-center shrink-0">
+                      #{entry.rank}
+                    </span>
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[var(--color-primary)] to-[var(--color-brand-crimson)] text-white font-bold flex items-center justify-center text-xs shrink-0">
+                      {entry.participantName[0]}
+                    </div>
+                    <span className={`text-xs truncate ${isMe ? "font-bold text-[var(--color-primary)]" : "text-[var(--color-text-primary)]"}`}>
+                      {entry.participantName} {isMe && "(You)"}
+                    </span>
+                  </div>
+
+                  <div className="text-right shrink-0">
+                    <span className="text-xs font-black text-[var(--color-primary)] block">
+                      {entry.referralCount} refs
+                    </span>
+                    <span className="badge badge-success text-[0.65rem]">
+                      {entry.totalRewards}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop Table View (screens >= sm) */}
+          <div className="hidden sm:block overflow-x-auto">
+            <table className="w-full border-collapse text-left text-xs">
+              <thead>
+                <tr className="bg-slate-50 border-b border-[var(--color-border-subtle)] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold text-[0.68rem]">
+                  <th className="py-2.5 px-4 text-center">Rank</th>
+                  <th className="py-2.5 px-4">Participant</th>
+                  <th className="py-2.5 px-4 text-center">Referrals</th>
+                  <th className="py-2.5 px-4 text-right">Rewards</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--color-border-subtle)]">
+                {leaderboard.map((entry) => {
+                  const isMe = entry.referralCount === participant.referralCount && entry.rank === myRank;
+                  return (
+                    <tr
+                      key={entry.participantId}
+                      className={isMe ? "bg-[var(--color-primary-soft)]/50" : "hover:bg-slate-50"}
+                    >
+                      <td className="py-3 px-4 text-center font-bold text-slate-500">
                         #{entry.rank}
-                      </span>
-                    </td>
-                    <td style={{ padding: "0.8rem 1.25rem" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                        <div style={{ width: "28px", height: "28px", borderRadius: "50%", background: "var(--gradient-brand)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.72rem", fontWeight: 700, color: "#fff", flexShrink: 0 }}>
-                          {entry.participantName[0]}
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[var(--color-primary)] to-[var(--color-brand-crimson)] text-white font-bold flex items-center justify-center text-xs shrink-0">
+                            {entry.participantName[0]}
+                          </div>
+                          <span className={`font-medium ${isMe ? "font-bold text-[var(--color-primary)]" : "text-[var(--color-text-primary)]"}`}>
+                            {entry.participantName} {isMe && "(You)"}
+                          </span>
                         </div>
-                        <span style={{ color: isMe ? "var(--color-primary)" : "var(--color-text-primary)", fontSize: "0.875rem", fontWeight: isMe ? 700 : 400 }}>
-                          {entry.participantName}{isMe && " (You)"}
-                        </span>
-                      </div>
-                    </td>
-                    <td style={{ padding: "0.8rem 1.25rem", textAlign: "center" }}>
-                      <span style={{ color: "var(--color-primary)", fontWeight: 700 }}>{entry.referralCount}</span>
-                    </td>
-                    <td style={{ padding: "0.8rem 1.25rem", textAlign: "center" }}>
-                      <span className="badge badge-success">{entry.totalRewards}</span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      </td>
+                      <td className="py-3 px-4 text-center font-bold text-[var(--color-primary)]">
+                        {entry.referralCount}
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <span className="badge badge-success text-[0.68rem]">{entry.totalRewards}</span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

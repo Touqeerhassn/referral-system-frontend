@@ -1,7 +1,10 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
+import { Menu, Bell } from "lucide-react";
 import { APP_NAME } from "@/lib/constants";
+import { useMobileNav } from "@/components/providers/MobileNavProvider";
 
 interface TopbarProps {
   title?: string;
@@ -9,55 +12,40 @@ interface TopbarProps {
 }
 
 export default function Topbar({ title, actions }: TopbarProps) {
-  return (
-    <header
-      style={{
-        height: "64px",
-        background: "var(--color-bg-card)",
-        borderBottom: "1px solid var(--color-border-default)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "0 2rem",
-        position: "sticky",
-        top: 0,
-        zIndex: 40,
-        backdropFilter: "blur(8px)",
-      }}
-    >
-      <h2
-        style={{
-          fontSize: "1.05rem",
-          fontWeight: 600,
-          color: "var(--color-text-primary)",
-        }}
-      >
-        {title}
-      </h2>
+  const { open } = useMobileNav();
 
-      <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-        {actions}
-        {/* Notification bell */}
+  return (
+    <header className="h-14 sm:h-16 px-3.5 sm:px-6 md:px-8 bg-[var(--color-bg-card)]/90 backdrop-blur-md border-b border-[var(--color-border-default)] flex items-center justify-between sticky top-0 z-30 transition-all">
+      {/* Left: Mobile Menu Trigger + Title */}
+      <div className="flex items-center gap-2.5 sm:gap-4 min-w-0">
         <button
-          style={{
-            width: "36px",
-            height: "36px",
-            borderRadius: "50%",
-            background: "var(--color-bg-card)",
-            border: "1px solid var(--color-border-default)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            color: "var(--color-text-secondary)",
-            transition: "all var(--transition-fast)",
-          }}
-          title="Notifications"
+          type="button"
+          onClick={open}
+          className="md:hidden p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 active:bg-slate-200 transition-colors shrink-0"
+          aria-label="Open navigation menu"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-          </svg>
+          <Menu size={20} />
+        </button>
+
+        <div className="min-w-0">
+          <h2 className="text-sm sm:text-base md:text-lg font-bold text-[var(--color-text-primary)] truncate">
+            {title || APP_NAME}
+          </h2>
+        </div>
+      </div>
+
+      {/* Right: Actions & Optional Notification */}
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        {actions}
+
+        {/* Notifications Icon Button */}
+        <button
+          type="button"
+          className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[var(--color-bg-card)] border border-[var(--color-border-default)] hover:border-[var(--color-border-strong)] text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] flex items-center justify-center transition-all cursor-pointer shadow-2xs"
+          title="Notifications"
+          aria-label="Notifications"
+        >
+          <Bell size={15} />
         </button>
       </div>
     </header>

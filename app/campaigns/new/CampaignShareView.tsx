@@ -116,11 +116,11 @@ export default function CampaignShareView({
 
 
   return (
-    <div ref={containerRef} className="flex-1 p-4 sm:p-8 overflow-y-auto max-w-3xl w-full mx-auto animate-scale-in">
+    <div ref={containerRef} className="flex-1 p-3.5 sm:p-6 md:p-8 overflow-y-auto max-w-3xl w-full mx-auto animate-scale-in">
       {/* Celebration Header */}
-      <div className="card-glow p-6 sm:p-8 mb-6 text-center relative overflow-hidden">
-        <div className="w-16 h-16 rounded-2xl bg-[var(--color-primary-soft)] text-[var(--color-primary)] flex items-center justify-center mx-auto mb-4 shadow-sm animate-scale-in">
-          <Sparkles size={32} />
+      <div className="card-glow p-5 sm:p-8 mb-6 text-center relative overflow-hidden">
+        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[var(--color-primary-soft)] text-[var(--color-primary)] flex items-center justify-center mx-auto mb-3.5 shadow-sm animate-scale-in">
+          <Sparkles size={30} />
         </div>
 
         <span className="badge badge-success text-xs font-bold mb-2 inline-flex items-center gap-1">
@@ -128,16 +128,16 @@ export default function CampaignShareView({
           <span>Campaign Active</span>
         </span>
 
-        <h1 className="text-2xl sm:text-3xl font-black text-[var(--color-text-primary)] tracking-tight">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-[var(--color-text-primary)] tracking-tight">
           Campaign Launched Successfully! 🎉
         </h1>
-        <p className="text-sm text-[var(--color-text-muted)] mt-1.5 max-w-lg mx-auto">
+        <p className="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1.5 max-w-lg mx-auto">
           <strong>{campaign.name}</strong> is live. Share your public campaign link with customers on social media, WhatsApp, or direct messages to start getting referrals.
         </p>
       </div>
 
       {/* Main Public Link Card */}
-      <div className="card p-6 sm:p-7 mb-6 flex flex-col gap-4">
+      <div className="card p-5 sm:p-7 mb-6 flex flex-col gap-4">
         <div>
           <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] block mb-1">
             Your Public Campaign Link
@@ -148,7 +148,7 @@ export default function CampaignShareView({
         </div>
 
         {/* Link Input with 1-Click Copy */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
           <div className="relative flex-1">
             <input
               type="text"

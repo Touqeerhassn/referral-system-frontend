@@ -60,43 +60,23 @@ export default function LoginForm() {
   };
 
   return (
-    <div
-      className="card-glow animate-scale-in"
-      style={{ width: "100%", maxWidth: "440px", padding: "2.5rem" }}
-    >
+    <div className="card-glow animate-scale-in w-full max-w-[440px] p-5 sm:p-9 shadow-xl">
       {/* Logo & Heading */}
-      <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-        <Link href="/" style={{ textDecoration: "none" }}>
-          <span
-            className="text-gradient-brand"
-            style={{ fontSize: "2rem", fontWeight: 900, letterSpacing: "-0.02em" }}
-          >
+      <div className="text-center mb-7">
+        <Link href="/" className="inline-block hover:opacity-95 transition-opacity">
+          <span className="text-gradient-brand text-3xl font-black tracking-tight">
             {APP_NAME}
           </span>
         </Link>
-        <p style={{ color: "var(--color-text-muted)", fontSize: "0.875rem", marginTop: "0.4rem" }}>
+        <p className="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1.5">
           Sign in to access your business referral portal
         </p>
       </div>
 
       {/* Error alert if any */}
       {isError && (
-        <div
-          className="animate-scale-in"
-          style={{
-            marginBottom: "1rem",
-            padding: "0.85rem 1rem",
-            borderRadius: "var(--radius-md)",
-            background: "var(--color-error-soft)",
-            border: "1px solid rgba(220,38,38,0.25)",
-            color: "var(--color-error)",
-            fontSize: "0.8rem",
-            display: "flex",
-            alignItems: "center",
-            gap: "0.5rem",
-          }}
-        >
-          <AlertCircle size={16} style={{ flexShrink: 0 }} />
+        <div className="mb-4 p-3 rounded-xl bg-[var(--color-error-soft)] border border-[rgba(220,38,38,0.25)] text-[var(--color-error)] text-xs font-medium flex items-center gap-2 animate-scale-in">
+          <AlertCircle size={16} className="shrink-0" />
           <span>
             {(error as any)?.response?.data?.error ||
               error?.message ||
@@ -106,7 +86,7 @@ export default function LoginForm() {
       )}
 
       {/* Form */}
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <InputField
           id="login-phone"
           name="phone"
@@ -130,17 +110,7 @@ export default function LoginForm() {
           id="login-submit"
           type="submit"
           disabled={isPending}
-          className="btn btn-primary"
-          style={{
-            marginTop: "0.5rem",
-            width: "100%",
-            height: "46px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "0.5rem",
-            fontSize: "0.95rem",
-          }}
+          className="btn btn-primary mt-1 w-full h-11 flex items-center justify-center gap-2 text-xs sm:text-sm font-bold shadow-sm"
         >
           {isPending ? (
             <>
@@ -156,11 +126,11 @@ export default function LoginForm() {
         </button>
       </form>
 
-      <hr className="divider" style={{ margin: "1.5rem 0" }} />
+      <hr className="divider my-5 border-[var(--color-border-subtle)]" />
 
-      <p style={{ textAlign: "center", color: "var(--color-text-muted)", fontSize: "0.875rem", margin: 0 }}>
+      <p className="text-center text-[var(--color-text-muted)] text-xs sm:text-sm">
         Don&apos;t have an account?{" "}
-        <Link href="/register" className="text-link" style={{ fontWeight: 600, textDecoration: "none" }}>
+        <Link href="/register" className="text-link font-semibold hover:underline">
           Register with WhatsApp
         </Link>
       </p>

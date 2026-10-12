@@ -99,11 +99,11 @@ export function CampaignsContent() {
         }
       />
 
-      <main className="flex-1 p-4 sm:p-8 max-w-6xl mx-auto w-full overflow-y-auto">
+      <main className="flex-1 p-3.5 sm:p-6 md:p-8 max-w-6xl mx-auto w-full overflow-y-auto">
         {/* Header */}
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-black text-[var(--color-text-primary)] tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-black text-[var(--color-text-primary)] tracking-tight">
               All Campaigns
             </h1>
             <p className="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1">
@@ -114,7 +114,7 @@ export function CampaignsContent() {
 
         {/* Loading state */}
         {isLoadingCampaigns && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-5">
             {[1, 2, 3].map((n) => (
               <div key={n} className="card p-5 animate-pulse flex flex-col gap-3">
                 <div className="h-5 bg-slate-200 rounded w-3/4" />
@@ -127,7 +127,7 @@ export function CampaignsContent() {
 
         {/* Empty state */}
         {!isLoadingCampaigns && campaigns.length === 0 && (
-          <div className="card p-12 text-center flex flex-col items-center justify-center max-w-md mx-auto my-8 border-dashed border-2">
+          <div className="card p-8 sm:p-12 text-center flex flex-col items-center justify-center max-w-md mx-auto my-8 border-dashed border-2">
             <div className="w-14 h-14 rounded-2xl bg-[var(--color-primary-soft)] text-[var(--color-primary)] flex items-center justify-center mb-3">
               <Megaphone size={28} />
             </div>
@@ -149,7 +149,7 @@ export function CampaignsContent() {
 
         {/* Campaign cards grid */}
         {!isLoadingCampaigns && campaigns.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-5">
             {campaigns.map((c) => {
               const cName = c.name || c.title || "Referral Campaign";
               const cSlug = c.slug || c.id;

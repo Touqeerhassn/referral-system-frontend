@@ -86,7 +86,7 @@ export function ParticipantStatusCard({
   );
 
   return (
-    <div className="card p-5 sm:p-7 animate-scale-in flex flex-col gap-5 text-left border border-[var(--color-border)] shadow-xl">
+    <div className="card p-4 sm:p-6 md:p-7 animate-scale-in flex flex-col gap-4 sm:gap-5 text-left border border-[var(--color-border)] shadow-xl">
       {/* Header */}
       <div className="flex items-start justify-between gap-3 border-b border-[var(--color-border-subtle)] pb-4">
         <div>
@@ -102,7 +102,7 @@ export function ParticipantStatusCard({
               Order: {participant.orderStatus.toUpperCase()}
             </span>
           </div>
-          <h3 className="text-xl font-black text-[var(--color-text-primary)] tracking-tight">
+          <h3 className="text-lg sm:text-xl font-black text-[var(--color-text-primary)] tracking-tight">
             {participant.name}
           </h3>
           <p className="text-xs text-[var(--color-text-secondary)]">
@@ -114,7 +114,7 @@ export function ParticipantStatusCard({
             ) : (
               <span className="font-mono font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded text-[0.72rem] inline-flex items-center gap-1">
                 <Clock size={11} className="text-amber-600" />
-                <span>••••-••••• (Locked until confirmed)</span>
+                <span>••••-••••• (Locked)</span>
               </span>
             )}
           </p>
@@ -153,7 +153,7 @@ export function ParticipantStatusCard({
         <div className="flex items-center justify-between gap-2 mb-2">
           <span className="text-xs font-bold uppercase tracking-wider text-indigo-950 flex items-center gap-1.5">
             <Percent size={14} className="text-indigo-600" />
-            <span>Active Discount Unlocked</span>
+            <span>Active Discount</span>
           </span>
           <span className="text-xs font-semibold text-indigo-700">
             Cap: {maxCap}% Max
@@ -161,7 +161,7 @@ export function ParticipantStatusCard({
         </div>
 
         <div className="flex items-baseline gap-2 mb-2">
-          <span className="text-3xl sm:text-4xl font-black text-indigo-950 tracking-tight">
+          <span className="text-2xl sm:text-4xl font-black text-indigo-950 tracking-tight">
             {metrics.applicableDiscountPct}%
           </span>
           <span className="text-xs sm:text-sm font-bold text-indigo-700">
@@ -169,7 +169,7 @@ export function ParticipantStatusCard({
           </span>
           {metrics.totalEarnedPct > metrics.applicableDiscountPct && (
             <span className="text-[0.7rem] bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full font-semibold ml-auto">
-              {metrics.totalEarnedPct}% Earned (Capped)
+              {metrics.totalEarnedPct}% (Capped)
             </span>
           )}
         </div>
@@ -190,49 +190,49 @@ export function ParticipantStatusCard({
       </div>
 
       {/* 3 Metric Cards Grid */}
-      <div className="grid grid-cols-3 gap-2.5">
+      <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
         {/* Direct Referrals */}
-        <div className="p-3 sm:p-4 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border-subtle)] text-center">
-          <div className="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center mx-auto mb-1.5">
-            <Users size={15} />
+        <div className="p-2.5 sm:p-4 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border-subtle)] text-center">
+          <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center mx-auto mb-1">
+            <Users size={14} />
           </div>
-          <span className="block text-lg sm:text-xl font-black text-[var(--color-text-primary)]">
+          <span className="block text-base sm:text-xl font-black text-[var(--color-text-primary)]">
             {metrics.directReferrals}
           </span>
-          <span className="block text-[0.68rem] text-[var(--color-text-muted)] font-medium">
-            Direct Friends (Tier 1)
+          <span className="block text-[0.62rem] sm:text-[0.68rem] text-[var(--color-text-muted)] font-medium leading-tight">
+            Direct (Tier 1)
           </span>
         </div>
 
         {/* Indirect Referrals */}
-        <div className="p-3 sm:p-4 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border-subtle)] text-center">
-          <div className="w-7 h-7 rounded-lg bg-pink-100 text-pink-600 flex items-center justify-center mx-auto mb-1.5">
-            <TrendingUp size={15} />
+        <div className="p-2.5 sm:p-4 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border-subtle)] text-center">
+          <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-pink-100 text-pink-600 flex items-center justify-center mx-auto mb-1">
+            <TrendingUp size={14} />
           </div>
-          <span className="block text-lg sm:text-xl font-black text-[var(--color-text-primary)]">
+          <span className="block text-base sm:text-xl font-black text-[var(--color-text-primary)]">
             {metrics.indirectReferrals}
           </span>
-          <span className="block text-[0.68rem] text-[var(--color-text-muted)] font-medium">
+          <span className="block text-[0.62rem] sm:text-[0.68rem] text-[var(--color-text-muted)] font-medium leading-tight">
             Network (Tier 2+)
           </span>
         </div>
 
         {/* Order Status */}
-        <div className="p-3 sm:p-4 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border-subtle)] text-center">
+        <div className="p-2.5 sm:p-4 rounded-xl bg-[var(--color-surface-subtle)] border border-[var(--color-border-subtle)] text-center">
           <div
-            className={`w-7 h-7 rounded-lg flex items-center justify-center mx-auto mb-1.5 ${
+            className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center mx-auto mb-1 ${
               isConfirmed
                 ? "bg-emerald-100 text-emerald-600"
                 : "bg-amber-100 text-amber-600"
             }`}
           >
-            {isConfirmed ? <ShieldCheck size={15} /> : <Clock size={15} />}
+            {isConfirmed ? <ShieldCheck size={14} /> : <Clock size={14} />}
           </div>
-          <span className="block text-sm sm:text-base font-extrabold capitalize text-[var(--color-text-primary)] truncate">
+          <span className="block text-xs sm:text-base font-extrabold capitalize text-[var(--color-text-primary)] truncate">
             {participant.orderStatus}
           </span>
-          <span className="block text-[0.68rem] text-[var(--color-text-muted)] font-medium">
-            Order Verification
+          <span className="block text-[0.62rem] sm:text-[0.68rem] text-[var(--color-text-muted)] font-medium leading-tight">
+            Verification
           </span>
         </div>
       </div>

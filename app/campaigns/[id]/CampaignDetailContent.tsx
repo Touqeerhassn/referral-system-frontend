@@ -125,25 +125,25 @@ export function CampaignDetailContent({ campaignId }: { campaignId: string }) {
         }
       />
 
-      <main className="flex-1 p-4 sm:p-8 max-w-6xl mx-auto w-full overflow-y-auto space-y-6">
+      <main className="flex-1 p-3.5 sm:p-6 md:p-8 max-w-6xl mx-auto w-full overflow-y-auto space-y-5 sm:space-y-6">
         {/* Top Info Banner */}
-        <div className="card p-6 border-slate-200">
+        <div className="card p-4 sm:p-6 border-slate-200">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2.5">
-                <h1 className="text-2xl font-black text-[var(--color-text-primary)] tracking-tight">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-xl sm:text-2xl font-black text-[var(--color-text-primary)] tracking-tight">
                   {campaign.name}
                 </h1>
                 <span className={`badge ${statusClass} text-xs font-bold capitalize`}>
                   {statusText}
                 </span>
               </div>
-              <p className="text-xs font-mono text-[var(--color-text-muted)] mt-1">
+              <p className="text-xs font-mono text-[var(--color-text-muted)] mt-1 break-all">
                 ID: {campaign.id} · Slug: /c/{campaign.slug}
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <button
                 type="button"
                 onClick={copyPublicLink}
@@ -164,7 +164,7 @@ export function CampaignDetailContent({ campaignId }: { campaignId: string }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-5 border-t border-[var(--color-border-subtle)]">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 mt-5 pt-4 border-t border-[var(--color-border-subtle)]">
             <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
               <span className="text-[0.7rem] uppercase font-bold text-[var(--color-text-muted)] block">
                 Total Participants

@@ -126,7 +126,7 @@ export default function DashboardContent() {
         }
       />
 
-      <main className="flex-1 p-4 sm:p-8 overflow-y-auto max-w-7xl w-full mx-auto">
+      <main className="flex-1 p-3.5 sm:p-6 md:p-8 overflow-y-auto max-w-7xl w-full mx-auto">
         {/* State: No Business Registered yet */}
         {isMounted && !businessId && (
           <div className="card-glow p-6 sm:p-8 mb-8 border-2 border-[var(--color-primary)]/20 animate-scale-in">
@@ -234,9 +234,9 @@ export default function DashboardContent() {
         </div>
 
         {/* Dynamic Metric Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-5 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-4 mb-8">
           {/* Card 1: Total Campaigns */}
-          <div className="card p-4 sm:p-5">
+          <div className="card p-3.5 sm:p-5">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
                 Total Campaigns
@@ -254,7 +254,7 @@ export default function DashboardContent() {
           </div>
 
           {/* Card 2: Active Campaigns */}
-          <div className="card p-4 sm:p-5">
+          <div className="card p-3.5 sm:p-5">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
                 Active Campaigns
@@ -272,7 +272,7 @@ export default function DashboardContent() {
           </div>
 
           {/* Card 3: Total Participants */}
-          <div className="card p-4 sm:p-5">
+          <div className="card p-3.5 sm:p-5">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
                 Participants
@@ -290,7 +290,7 @@ export default function DashboardContent() {
           </div>
 
           {/* Card 4: Total Referrals */}
-          <div className="card p-4 sm:p-5">
+          <div className="card p-3.5 sm:p-5">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
                 Total Referrals
@@ -308,7 +308,7 @@ export default function DashboardContent() {
           </div>
 
           {/* Card 5: Pending Approvals */}
-          <div className="card p-4 sm:p-5">
+          <div className="card p-3.5 sm:p-5">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
                 Pending Orders
@@ -506,12 +506,12 @@ export default function DashboardContent() {
                   </div>
 
                   {/* Middle: Metrics & Campaign Stats */}
-                  <div className="flex items-center gap-6 py-2 border-y lg:border-y-0 lg:border-x border-[var(--color-border-subtle)] lg:px-6 shrink-0 justify-around">
+                  <div className="grid grid-cols-3 gap-2 py-2.5 border-y lg:border-y-0 lg:border-x border-[var(--color-border-subtle)] lg:px-6 shrink-0 lg:min-w-[260px] text-center">
                     <div className="text-center">
                       <p className="text-xl font-black text-[var(--color-text-primary)] leading-tight">
                         {campParts.length}
                       </p>
-                      <p className="text-[0.7rem] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold">
+                      <p className="text-[0.68rem] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold">
                         Participants
                       </p>
                     </div>
@@ -519,7 +519,7 @@ export default function DashboardContent() {
                       <p className="text-xl font-black text-amber-600 leading-tight">
                         {campPending}
                       </p>
-                      <p className="text-[0.7rem] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold">
+                      <p className="text-[0.68rem] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold">
                         Pending
                       </p>
                     </div>
@@ -527,14 +527,14 @@ export default function DashboardContent() {
                       <p className="text-xl font-black text-[var(--color-primary)] leading-tight">
                         {campParts.filter((p) => p.orderStatus === "confirmed").length}
                       </p>
-                      <p className="text-[0.7rem] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold">
+                      <p className="text-[0.68rem] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold">
                         Confirmed
                       </p>
                     </div>
                   </div>
 
                   {/* Right: Actions */}
-                  <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+                  <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-wrap justify-start lg:justify-end">
                     {/* View Participants & Confirm Orders for this campaign */}
                     <button
                       type="button"

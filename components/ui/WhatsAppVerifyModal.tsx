@@ -241,18 +241,7 @@ export function WhatsAppVerifyModal({
       {/* Card */}
       <div
         id="wa-verify-modal"
-        style={{
-          background: "var(--color-bg-card)",
-          borderRadius: 20,
-          width: "100%",
-          maxWidth: 460,
-          padding: "32px 28px 28px",
-          boxShadow:
-            "0 24px 80px rgba(240,74,103,0.12), 0 8px 32px rgba(0,0,0,0.10)",
-          border: "1px solid var(--color-border-subtle)",
-          position: "relative",
-          animation: "waScaleIn 0.3s cubic-bezier(0.34,1.56,0.64,1)",
-        }}
+        className="w-full max-w-[460px] p-5 sm:p-7 bg-[var(--color-bg-card)] rounded-2xl sm:rounded-3xl border border-[var(--color-border-subtle)] shadow-2xl relative animate-scale-in"
       >
         {/* Close — always visible except on success */}
         {pollStatus !== "verified" && (

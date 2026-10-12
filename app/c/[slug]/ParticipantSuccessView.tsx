@@ -237,28 +237,28 @@ export function ParticipantSuccessView({
         /* ─────────────────────────────────────────────────────────────
            STATE A: CONFIRMED & UNLOCKED — Referral Code and Sharing Active
         ───────────────────────────────────────────────────────────── */
-        <div className="card p-6 sm:p-8 animate-scale-in text-center flex flex-col gap-6 shadow-xl border border-[var(--color-border)]">
+        <div className="card p-4 sm:p-6 md:p-8 animate-scale-in text-center flex flex-col gap-5 sm:gap-6 shadow-xl border border-[var(--color-border)]">
           {/* Celebration Header */}
           <div>
-            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-3 shadow-sm ring-8 ring-emerald-50">
-              <CheckCircle2 size={36} />
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-3 shadow-sm ring-6 sm:ring-8 ring-emerald-50">
+              <CheckCircle2 size={32} />
             </div>
 
             <span className="badge badge-success text-xs font-bold mb-2">
               Verified & Order Confirmed
             </span>
 
-            <h2 className="text-2xl font-black text-[var(--color-text-primary)] tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-black text-[var(--color-text-primary)] tracking-tight">
               Welcome, {currentParticipant.name}!
             </h2>
 
-            <p className="text-sm text-[var(--color-text-secondary)] mt-1.5 max-w-md mx-auto">
+            <p className="text-xs sm:text-sm text-[var(--color-text-secondary)] mt-1.5 max-w-md mx-auto leading-relaxed">
               Your order is verified! You are now fully enrolled in <strong>{campaignName}</strong>. Share your unique code or link to start earning discounts!
             </p>
           </div>
 
           {/* Active Referral Code Box */}
-          <div className="bg-gradient-to-br from-indigo-50/80 via-purple-50/50 to-pink-50/80 rounded-2xl p-5 border border-indigo-100 shadow-sm text-left">
+          <div className="bg-gradient-to-br from-indigo-50/80 via-purple-50/50 to-pink-50/80 rounded-2xl p-4 sm:p-5 border border-indigo-100 shadow-sm text-left">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-indigo-900">
                 <Ticket size={15} className="text-indigo-600" />
@@ -271,7 +271,7 @@ export function ParticipantSuccessView({
             </div>
 
             <div className="flex items-center justify-between gap-3 bg-white rounded-xl p-3 border border-indigo-200 shadow-xs">
-              <span className="text-xl sm:text-2xl font-black tracking-widest text-indigo-700 font-mono select-all">
+              <span className="text-lg sm:text-2xl font-black tracking-widest text-indigo-700 font-mono select-all truncate">
                 {referralCode}
               </span>
               <button
@@ -305,20 +305,20 @@ export function ParticipantSuccessView({
               <span>Your Direct Invite Link</span>
             </label>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               <input
                 id="personal-share-link"
                 type="text"
                 readOnly
                 value={shareableLink}
-                className="input-base text-xs sm:text-sm font-mono truncate bg-[var(--color-surface-subtle)]"
+                className="input-base text-xs sm:text-sm font-mono truncate bg-[var(--color-surface-subtle)] flex-1 min-h-[42px] sm:min-h-0"
                 onClick={(e) => (e.target as HTMLInputElement).select()}
               />
               <button
                 type="button"
                 id="btn-copy-link"
                 onClick={() => copyToClipboard(shareableLink, false)}
-                className="btn btn-primary px-4 py-2.5 text-xs sm:text-sm font-bold flex items-center gap-1.5 shrink-0 shadow-sm"
+                className="btn btn-primary px-4 py-2.5 text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 shrink-0 shadow-sm min-h-[42px] sm:min-h-0"
               >
                 {copiedLink ? (
                   <>

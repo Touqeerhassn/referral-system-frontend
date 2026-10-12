@@ -25,6 +25,7 @@ export const metadata: Metadata = {
 
 import QueryProvider from "@/components/providers/QueryProvider";
 import ToastProvider from "@/components/providers/ToastProvider";
+import { MobileNavProvider } from "@/components/providers/MobileNavProvider";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -32,10 +33,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col bg-[var(--color-bg-base)] text-[var(--color-text-primary)]">
         <QueryProvider>
-          {children}
-          <ToastProvider />
+          <MobileNavProvider>
+            {children}
+            <ToastProvider />
+          </MobileNavProvider>
         </QueryProvider>
       </body>
     </html>
